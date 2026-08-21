@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Tema: koyu, düşük kontrastlı yüzeyler + yüksek kontrastlı metin.
+ * Tailwind v4'te @theme içindeki --color-* değişkenleri doğrudan
+ * bg-*, text-*, border-* yardımcı sınıflarına dönüşür.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-bg: #0a0e13;
+  --color-panel: #111823;
+  --color-panel-2: #16202c;
+  --color-panel-3: #1c2836;
+  --color-line: #23324399;
+  --color-line-strong: #2c3d52;
+
+  --color-ink: #e7eef6;
+  --color-ink-dim: #9fb2c6;
+  --color-ink-faint: #67798e;
+
+  --color-brand: #e0a340;
+  --color-brand-ink: #1a1206;
+  --color-brand-dim: #6b4d19;
+
+  --color-danger: #f0616d;
+  --color-danger-dim: #5c2028;
+  --color-ok: #3fbf62;
+
+  /* Eşya kalitesi (nadirlik) renkleri */
+  --color-q-gri: #9aa7b4;
+  --color-q-yesil: #45c46a;
+  --color-q-mavi: #4a95f7;
+  --color-q-mor: #b06cf2;
+  --color-q-turuncu: #f5872a;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    color-scheme: dark;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Arka planda hafif bir "kasa ışığı" gradyanı */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(60rem 30rem at 15% -10%, #1b283a55, transparent 70%),
+      radial-gradient(40rem 24rem at 90% 0%, #2a1f0d55, transparent 70%);
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-brand-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* iOS'ta odaklanınca sayfanın zoom yapmasını engeller */
+  @supports (-webkit-touch-callout: none) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #24344699;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #35485f;
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  .panel {
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+  }
+
+  .hairline {
+    border-color: var(--color-line);
+  }
+}

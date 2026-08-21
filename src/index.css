@@ -92,6 +92,13 @@
     color: inherit;
   }
 
+  /* Arama kutusunun kendi ✕ düğmesi var; tarayıcının yerleşik olanı çift görünmesin. */
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
   /* iOS'ta odaklanınca sayfanın zoom yapmasını engeller */
   @supports (-webkit-touch-callout: none) {
     input,

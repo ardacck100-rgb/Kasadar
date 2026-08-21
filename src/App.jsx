@@ -1,45 +1,40 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 import { CharactersView } from './components/characters/CharactersView.jsx';
+import { DataView } from './components/data/DataView.jsx';
+import { ItemsView } from './components/items/ItemsView.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
-import { ComingSoon } from './components/layout/ComingSoon.jsx';
+import { SearchView } from './components/search/SearchView.jsx';
+import { useUi } from './state/UiContext.jsx';
 
 export default function App() {
-  // Kısım 1'de çalışan tek ekran karakter yönetimi olduğu için varsayılan o.
-  const [view, setView] = useState('characters');
+  const { view, setView, focusSearch } = useUi();
+
+  // "/" her yerden arama kutusuna atlar — klavyedeki en kısa yol.
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      const typing =
+        el instanceof HTMLElement &&
+        (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+      if (typing) return;
+      e.preventDefault();
+      setView('search');
+      // Görünüm değiştikten sonra odaklan.
+      requestAnimationFrame(focusSearch);
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [setView, focusSearch]);
 
   return (
-    <AppShell view={view} onViewChange={setView}>
+    <AppShell>
+      {view === 'search' ? <SearchView /> : null}
+      {view === 'items' ? <ItemsView /> : null}
       {view === 'characters' ? <CharactersView /> : null}
-
-      {view === 'search' ? (
-        <ComingSoon
-          icon="🔍"
-          title="Arama motoru henüz bağlı değil"
-          part="Kısım 3"
-          description="Uygulama açılır açılmaz imlecin içinde olacağı arama kutusu burada duracak."
-          bullets={[
-            'Yazdıkça anlık sonuç',
-            'Yazım hatasına dayanıklı yaklaşık (fuzzy) eşleşme',
-            'Türkçe karakter normalizasyonu: "iksır" → "İksir"',
-            'Karakter / depo tipi / kalite / etiket filtreleri',
-          ]}
-        />
-      ) : null}
-
-      {view === 'items' ? (
-        <ComingSoon
-          icon="📦"
-          title="Eşya listesi henüz bağlı değil"
-          part="Kısım 2"
-          description="Depolara eşya girme ve envanteri görme ekranı bir sonraki adımda geliyor."
-          bullets={[
-            'Tek tek eşya ekleme formu',
-            'Toplu yapıştırma modu: "Demir Cevheri x40" satırlarını ayrıştırır',
-            'Masaüstünde tablo, mobilde kart görünümü',
-          ]}
-        />
-      ) : null}
+      {view === 'data' ? <DataView /> : null}
     </AppShell>
   );
 }

@@ -1,13 +1,14 @@
 {
   "name": "kasadar",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
-  "description": "MMORPG alt karakter kasa arama motoru",
+  "description": "MMORPG alt karakter kasa arama motoru — çevrimdışı, kurulabilir PWA",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --open"
   },
   "dependencies": {
     "react": "^19.2.8",

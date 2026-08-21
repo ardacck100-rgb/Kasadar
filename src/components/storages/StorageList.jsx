@@ -1,12 +1,15 @@
-import { getStorageType } from '../../data/schema.js';
-import { formatRelative } from '../../lib/date.js';
+import { STALE_AFTER_DAYS, getStorageType } from '../../data/schema.js';
+import { formatRelative, isStale } from '../../lib/date.js';
 import { storageStats } from '../../state/selectors.js';
 import { useDatabase } from '../../state/DatabaseContext.jsx';
+import { useUi } from '../../state/UiContext.jsx';
 import { Button, IconButton } from '../ui/Button.jsx';
+import { StaleBadge } from '../ui/Chips.jsx';
 import { EmptyState } from '../ui/EmptyState.jsx';
 
 export function StorageList({ storages, onAdd, onEdit, onDelete }) {
   const { db, actions } = useDatabase();
+  const { openCharacter } = useUi();
 
   return (
     <section className="space-y-3">
@@ -38,11 +41,14 @@ export function StorageList({ storages, onAdd, onEdit, onDelete }) {
           {storages.map((storage) => {
             const type = getStorageType(storage.type);
             const stats = storageStats(db, storage.id);
+            const stale = isStale(storage.updatedAt, STALE_AFTER_DAYS);
 
             return (
               <li
                 key={storage.id}
-                className="panel bg-panel-2/60 p-3 sm:p-4 flex items-start gap-3 transition-colors hover:border-line-strong/70"
+                className={`panel bg-panel-2/60 p-3 sm:p-4 flex items-start gap-3 transition-colors hover:border-line-strong/70 ${
+                  stale ? 'opacity-60' : ''
+                }`}
               >
                 <span
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-panel-3 border border-line text-lg"
@@ -57,10 +63,22 @@ export function StorageList({ storages, onAdd, onEdit, onDelete }) {
                     <span className="rounded-md border border-line px-1.5 py-0.5 text-[11px] text-ink-faint">
                       {type.label}
                     </span>
+                    {stale ? <StaleBadge /> : null}
                   </div>
 
                   <p className="mt-1 text-xs text-ink-faint">
-                    {stats.rows} kayıt · {stats.quantity.toLocaleString('tr-TR')} adet ·{' '}
+                    {stats.rows > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => openCharacter(storage.characterId)}
+                        className="underline underline-offset-2 hover:text-ink"
+                      >
+                        {stats.rows} kayıt
+                      </button>
+                    ) : (
+                      '0 kayıt'
+                    )}{' '}
+                    · {stats.quantity.toLocaleString('tr-TR')} adet ·{' '}
                     <span title={storage.updatedAt}>güncelleme {formatRelative(storage.updatedAt)}</span>
                   </p>
 

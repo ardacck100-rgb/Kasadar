@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 
-import { createCharacter, createStorage } from '../data/schema.js';
+import { createCharacter, createItem, createStorage } from '../data/schema.js';
 import {
   isPersistenceAvailable,
   loadDatabase,
@@ -73,6 +73,26 @@ export function DatabaseProvider({ children }) {
       },
       touchStorage(id) {
         dispatch({ type: 'storage/touch', id });
+      },
+
+      addItem(data) {
+        const item = createItem(data);
+        dispatch({ type: 'item/add', item });
+        return item;
+      },
+      addItems(list) {
+        const items = list.map((data) => createItem(data));
+        dispatch({ type: 'item/addMany', items });
+        return items;
+      },
+      updateItem(id, patch) {
+        dispatch({ type: 'item/update', id, patch });
+      },
+      incrementItem(id, amount) {
+        dispatch({ type: 'item/increment', id, amount });
+      },
+      removeItem(id) {
+        dispatch({ type: 'item/remove', id });
       },
 
       replaceDatabase(next) {

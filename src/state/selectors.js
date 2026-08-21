@@ -71,3 +71,49 @@ export function storageLabel(db, storageId) {
   const type = getStorageType(storage.type);
   return `${character?.name ?? '?'} · ${storage.name || type.label}`;
 }
+
+/* ------------------------------- Hızlı erişim ------------------------------- */
+
+/** Listeleri her satırda tek tek taramamak için tek seferlik sözlükler. */
+export function buildIndex(db) {
+  const charById = new Map(db.characters.map((c) => [c.id, c]));
+  const storageById = new Map(db.storages.map((s) => [s.id, s]));
+  return { charById, storageById };
+}
+
+/** Bir eşyayı deposu ve karakteriyle birlikte döndürür. */
+export function locate(index, item) {
+  const storage = index.storageById.get(item.storageId) ?? null;
+  const character = storage ? (index.charById.get(storage.characterId) ?? null) : null;
+  return { item, storage, character };
+}
+
+/** Kullanımdaki tüm etiketler, çok kullanılandan aza doğru. */
+export function allTags(db) {
+  const counts = new Map();
+  for (const item of db.items) {
+    for (const tag of item.tags) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || collator.compare(a.tag, b.tag));
+}
+
+/** Aynı depoda aynı isimli kayıt var mı? (toplu eklemede adet toplamak için) */
+export function findItemInStorage(db, storageId, normalizedName, normalizer) {
+  return (
+    db.items.find(
+      (it) => it.storageId === storageId && normalizer(it.name) === normalizedName,
+    ) ?? null
+  );
+}
+
+/** Depoları karaktere göre gruplayıp seçim kutusu için hazırlar. */
+export function storageOptionGroups(db) {
+  return sortCharacters(db.characters).map((character) => ({
+    character,
+    storages: storagesOfCharacter(db, character.id),
+  }));
+}

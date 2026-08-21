@@ -71,16 +71,87 @@ export function dbReducer(db, action) {
       });
 
     case 'storage/touch':
-      return stamp({
-        ...db,
-        storages: db.storages.map((s) =>
-          s.id === action.id ? { ...s, updatedAt: nowIso() } : s,
+      return stamp(touchStorages(db, [action.id]));
+
+    /* ---------------------------------- Eşya ---------------------------------- */
+
+    case 'item/add':
+      return stamp(
+        touchStorages({ ...db, items: [...db.items, action.item] }, [action.item.storageId]),
+      );
+
+    case 'item/addMany': {
+      if (action.items.length === 0) return db;
+      return stamp(
+        touchStorages(
+          { ...db, items: [...db.items, ...action.items] },
+          action.items.map((it) => it.storageId),
         ),
-      });
+      );
+    }
+
+    case 'item/update': {
+      const target = db.items.find((it) => it.id === action.id);
+      if (!target) return db;
+      const nextStorageId = action.patch.storageId ?? target.storageId;
+      return stamp(
+        touchStorages(
+          {
+            ...db,
+            items: db.items.map((it) =>
+              it.id === action.id ? { ...it, ...action.patch, id: it.id, updatedAt: nowIso() } : it,
+            ),
+          },
+          // Eşya başka depoya taşındıysa iki depo da tazelenir.
+          [target.storageId, nextStorageId],
+        ),
+      );
+    }
+
+    /** Aynı depodaki aynı isimli kaydın adedini artırır (toplu ekleme birleştirmesi). */
+    case 'item/increment': {
+      const target = db.items.find((it) => it.id === action.id);
+      if (!target) return db;
+      return stamp(
+        touchStorages(
+          {
+            ...db,
+            items: db.items.map((it) =>
+              it.id === action.id
+                ? { ...it, quantity: it.quantity + action.amount, updatedAt: nowIso() }
+                : it,
+            ),
+          },
+          [target.storageId],
+        ),
+      );
+    }
+
+    case 'item/remove': {
+      const target = db.items.find((it) => it.id === action.id);
+      if (!target) return db;
+      return stamp(
+        touchStorages(
+          { ...db, items: db.items.filter((it) => it.id !== action.id) },
+          [target.storageId],
+        ),
+      );
+    }
 
     default:
       return db;
   }
+}
+
+/** Verilen depoların updatedAt alanını tazeler; bayat veri uyarısı buna bakar. */
+function touchStorages(db, storageIds) {
+  const ids = new Set(storageIds.filter(Boolean));
+  if (ids.size === 0) return db;
+  const ts = nowIso();
+  return {
+    ...db,
+    storages: db.storages.map((s) => (ids.has(s.id) ? { ...s, updatedAt: ts } : s)),
+  };
 }
 
 function stamp(next) {

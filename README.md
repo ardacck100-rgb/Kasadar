@@ -31,7 +31,7 @@ npm install
 npm start
 ```
 
-Tarayıcı kendiliğinden açılır (http://localhost:5173).
+Terminalde "Local: http://localhost:5173/" yazısını görünce tarayıcıda o adresi aç.
 
 Yayına hazır dosyaları üretmek için `npm run build` — çıktı `dist/` klasörüne düşer ve
 göreli yollarla derlendiği için o klasörü herhangi bir statik sunucuya (ya da bir alt

@@ -1,10 +1,16 @@
 # Depoya her push'ta uygulamayı derleyip GitHub Pages'e yayınlar.
 # Tek seferlik ayar: Settings → Pages → Source: "GitHub Actions".
+#
+# Not: GitHub Pages yalnızca deponun VARSAYILAN dalından yayın yapılmasına
+# izin verir. Varsayılan dal main yapıldığında aşağıdaki claude/... satırı
+# silinebilir; main tek başına yeter.
 name: Yayınla
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - claude/mmorpg-alt-char-storage-search-vp4dwj
   workflow_dispatch:
 
 permissions:
